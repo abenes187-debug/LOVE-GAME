@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="LOVE-GAME">
+<title>💑 LOVE-GAME</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Pacifico&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --rose:#FF6B9D;--rose-light:#FFE4EF;--rose-mid:#FFB3CF;
+  --amber:#FFB347;--amber-light:#FFF4E0;
+  --mint:#4ECDC4;--mint-light:#E0F7F6;
+  --lav:#9B89C4;--lav-light:#EEE8FF;
+  --cream:#FFF8F0;--white:#FFFFFF;
+  --text:#3D2C2C;--soft:#9B8585;--border:#F0E0E0;
+  --shadow:0 4px 20px rgba(255,107,157,0.13);
+  --r:18px;--rb:50px;
+}
+html,body{height:100%;background:var(--cream);color:var(--text);font-family:'Nunito',sans-serif;overflow-x:hidden}
+.app{max-width:480px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column}
+
+/* ── LOGIN SCREEN ── */
+#login-screen{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  min-height:100vh;padding:24px;
+  background:linear-gradient(160deg,#FFE4EF 0%,#FFF4E0 50%,#E0F7F6 100%);
+}
+.login-title{font-family:'Pacifico',cursive;font-size:32px;color:var(--rose);margin-bottom:6px;text-align:center}
+.login-sub{font-size:14px;color:var(--soft);margin-bottom:40px;text-align:center}
+.login-cards{display:flex;flex-direction:column;gap:14px;width:100%;max-width:320px}
+.login-card{
+  background:white;border-radius:var(--r);padding:20px 24px;
+  box-shadow:var(--shadow);cursor:pointer;
+  display:flex;align-items:center;gap:16px;
+  transition:transform .2s,box-shadow .2s;
+  border:2px solid transparent;
+}
+.login-card:active{transform:scale(0.97)}
+.login-card.tyna{border-color:var(--rose)}
+.login-card.antonin{border-color:var(--lav)}
+.login-avatar{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;flex-shrink:0}
+.av-t{background:var(--rose-light);color:var(--rose)}
+.av-a{background:var(--lav-light);color:var(--lav)}
+.login-name{font-size:20px;font-weight:800}
+.login-hint{font-size:12px;color:var(--soft);margin-top:2px}
+
+/* ── HEADER ── */
+.header{
+  background:linear-gradient(135deg,#FF6B9D,#FFB347);
+  padding:14px 16px 18px;position:relative;overflow:hidden;flex-shrink:0
+}
+.header::after{content:'';position:absolute;top:-40px;right:-40px;width:130px;height:130px;background:rgba(255,255,255,.1);border-radius:50%}
+.header-top{display:flex;justify-content:space-between;align-items:center}
+.header-title{font-family:'Pacifico',cursive;font-size:22px;color:white}
+.logout-btn{background:rgba(255,255,255,.25);border:none;color:white;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;padding:6px 12px;border-radius:var(--rb);cursor:pointer}
+.current-user-badge{font-size:12px;color:rgba(255,255,255,.85);margin-top:4px;font-weight:600}
+
+/* ── SCORE CARDS ── */
+.scores{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:12px 12px 0}
+.score-card{background:white;border-radius:var(--r);padding:14px;box-shadow:var(--shadow);text-align:center;position:relative;overflow:hidden}
+.score-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px}
+.sc-t::before{background:linear-gradient(90deg,#FF6B9D,#FFB347)}
+.sc-a::before{background:linear-gradient(90deg,#9B89C4,#4ECDC4)}
+.sc-avatar{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:900;margin:0 auto 6px}
+.sc-name{font-size:12px;color:var(--soft);font-weight:700;margin-bottom:3px}
+.sc-credits{font-family:'Pacifico',cursive;font-size:24px;color:var(--amber)}
+.sc-you{font-size:10px;background:var(--rose-light);color:var(--rose);padding:2px 8px;border-radius:var(--rb);font-weight:700;display:inline-block;margin-top:4px}
+
+/* ── TABS ── */
+.tabs{display:flex;background:white;margin:12px 12px 0;border-radius:var(--rb);padding:3px;box-shadow:0 2px 10px rgba(0,0,0,.07);overflow-x:auto;scrollbar-width:none;gap:2px}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:1;min-width:52px;padding:8px 4px;border:none;background:transparent;border-radius:var(--rb);font-family:'Nunito',sans-serif;font-size:11px;font-weight:700;color:var(--soft);cursor:pointer;white-space:nowrap;transition:all .2s}
+.tab.active{background:linear-gradient(135deg,#FF6B9D,#FFB347);color:white}
+
+/* ── CONTENT ── */
+.content{flex:1;overflow-y:auto;padding:12px 12px 90px}
+.section{display:none}.section.active{display:block}
+
+/* ── CARDS ── */
+.card{background:white;border-radius:var(--r);padding:14px;box-shadow:var(--shadow);margin-bottom:12px}
+.card-title{font-size:12px;font-weight:800;color:var(--soft);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+
+/* ── ACTIVITY ITEMS ── */
+.act-item{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border)}
+.act-item:last-of-type{border-bottom:none}
+.act-left{display:flex;align-items:center;gap:9px;flex:1;min-width:0}
+.act-icon{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.ico-pos{background:var(--mint-light)}.ico-neg{background:#FFE8E8}
+.act-name{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.act-desc{font-size:11px;color:var(--soft)}
+.act-right{display:flex;gap:5px;align-items:center;flex-shrink:0}
+.badge{padding:5px 9px;border-radius:var(--rb);font-size:12px;font-weight:700;border:none;cursor:pointer;font-family:'Nunito',sans-serif}
+.b-earn{background:var(--mint-light);color:#2BAF9E}
+.b-pen{background:#FFE8E8;color:#E74C3C}
+.b-del{background:#F5F5F5;color:#999;width:26px;height:26px;border-radius:8px;padding:0;display:flex;align-items:center;justify-content:center;font-size:14px}
+
+/* ── FORM ── */
+.add-btn{display:flex;align-items:center;gap:6px;background:var(--cream);color:var(--rose);border:1.5px dashed var(--rose-mid);border-radius:var(--r);padding:9px 14px;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;cursor:pointer;width:100%;margin-top:6px;transition:background .2s}
+.add-btn:hover{background:var(--rose-light)}
+.form-box{background:var(--cream);border-radius:14px;padding:12px;margin-top:8px}
+.fi{width:100%;border:1.5px solid var(--border);border-radius:11px;padding:9px 12px;font-family:'Nunito',sans-serif;font-size:13px;background:white;color:var(--text);margin-bottom:7px;outline:none}
+.fi:focus{border-color:var(--rose)}
+.fi-row{display:flex;gap:7px}
+.fi-row .fi{flex:1}
+select.fi{background:white}
+.hidden{display:none!important}
+
+/* ── STARS ── */
+.star-wrap{text-align:center}
+.player-pick{display:flex;gap:8px;justify-content:center;margin-bottom:12px;flex-wrap:wrap}
+.ppill{padding:7px 16px;border-radius:var(--rb);font-weight:700;font-size:13px;cursor:pointer;border:2px solid transparent;transition:all .2s}
+.pp-t{background:var(--rose-light);color:var(--rose)}
+.pp-a{background:var(--lav-light);color:var(--lav)}
+.ppill.sel.pp-t{border-color:var(--rose)}
+.ppill.sel.pp-a{border-color:var(--lav)}
+.stars{display:flex;justify-content:center;gap:6px;margin:14px 0}
+.star-b{font-size:34px;background:none;border:none;cursor:pointer;transition:transform .15s;filter:grayscale(1);opacity:.35}
+.star-b.on{filter:none;opacity:1;transform:scale(1.1)}
+.rating-lbl{font-size:20px;font-weight:800;color:var(--rose);min-height:28px;margin-top:4px}
+.stat-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border)}
+.stat-row:last-child{border-bottom:none}
+
+/* ── CHALLENGE ── */
+.ch-item{background:var(--cream);border-radius:14px;padding:12px;margin-bottom:8px}
+.ch-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px}
+.ch-name{font-size:14px;font-weight:700}
+.ch-for{font-size:11px;color:var(--soft);margin-top:1px}
+.ch-meta{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
+.ch-tag{font-size:11px;font-weight:700;padding:3px 8px;border-radius:var(--rb)}
+.ct-days{background:var(--lav-light);color:var(--lav)}
+.ct-cred{color:var(--amber)}
+.ch-bar{height:6px;background:var(--border);border-radius:var(--rb);overflow:hidden}
+.ch-fill{height:100%;background:linear-gradient(90deg,#FF6B9D,#FFB347);border-radius:var(--rb);transition:width .4s}
+.ch-done-btn{background:linear-gradient(135deg,#4ECDC4,#44A08D);color:white;font-size:11px;font-weight:700;padding:4px 10px;border-radius:var(--rb);border:none;cursor:pointer;font-family:'Nunito',sans-serif}
+
+/* ── SHOP ── */
+.shop-item{display:flex;align-items:center;justify-content:space-between;padding:11px;background:var(--cream);border-radius:14px;margin-bottom:8px}
+.sh-left{display:flex;align-items:center;gap:10px}
+.sh-ico{font-size:26px}
+.sh-name{font-size:13px;font-weight:700}
+.sh-price{font-size:12px;color:var(--amber);font-weight:700}
+.sh-right{display:flex;gap:5px;align-items:center}
+.btn-buy{background:linear-gradient(135deg,#FFB347,#FF6B9D);color:white;padding:7px 13px;font-size:12px;border-radius:var(--rb);border:none;cursor:pointer;font-weight:700;font-family:'Nunito',sans-serif}
+
+/* ── HISTORY ── */
+.hist-item{padding:8px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.hist-item:last-child{border-bottom:none}
+.hist-who{font-size:11px;font-weight:700;padding:2px 8px;border-radius:var(--rb);margin-bottom:3px;display:inline-block}
+.hw-t{background:var(--rose-light);color:var(--rose)}
+.hw-a{background:var(--lav-light);color:var(--lav)}
+.hist-desc{font-size:13px;font-weight:600}
+.hist-time{font-size:10px;color:var(--soft)}
+.hist-amt{font-size:15px;font-weight:900}
+.ha-pos{color:var(--mint)}.ha-neg{color:#E74C3C}
+
+/* ── BUTTONS ── */
+.btn-main{background:linear-gradient(135deg,#FF6B9D,#FFB347);color:white;border:none;border-radius:var(--rb);padding:11px 20px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:transform .15s}
+.btn-main:active{transform:scale(.97)}
+.w100{width:100%}
+.empty{text-align:center;padding:20px;color:var(--soft);font-size:13px}
+.loading{text-align:center;padding:30px;color:var(--soft)}
+
+/* ── COIN BURST ── */
+.burst{position:fixed;pointer-events:none;z-index:9999;top:0;left:0;width:100%;height:100%}
+.coin{position:absolute;font-size:22px;animation:coinfly 1.1s ease-out forwards}
+@keyframes coinfly{0%{transform:translate(0,0) scale(.4) rotate(0deg);opacity:1}100%{transform:translate(var(--dx),var(--dy)) scale(1.1) rotate(360deg);opacity:0}}
+.flash{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0);background:linear-gradient(135deg,#FFB347,#FF6B9D);color:white;font-family:'Pacifico',cursive;font-size:30px;padding:16px 32px;border-radius:20px;z-index:10000;pointer-events:none;opacity:0;transition:transform .25s cubic-bezier(.34,1.56,.64,1),opacity .25s}
+.flash.show{transform:translate(-50%,-50%) scale(1);opacity:1}
+.flash.hide{transform:translate(-50%,-50%) scale(.8);opacity:0}
+
+/* ── NAV ── */
+.bot-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:white;display:flex;padding:6px 0 env(safe-area-inset-bottom,10px);box-shadow:0 -3px 16px rgba(0,0,0,.08);z-index:100}
+.nav-it{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:4px 0;border:none;background:none;font-family:'Nunito',sans-serif;transition:all .15s}
+.nav-ico{font-size:20px}
+.nav-lbl{font-size:9px;font-weight:700;color:var(--soft)}
+.nav-it.active .nav-lbl{color:var(--rose)}
+
+/* ── PLAYER SELECT MODAL ── */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:200;display:flex;align-items:flex-end;justify-content:center}
+.modal{background:white;border-radius:24px 24px 0 0;padding:20px;width:100%;max-width:480px}
+.modal-title{font-size:15px;font-weight:800;text-align:center;margin-bottom:16px}
+.modal-opts{display:flex;flex-direction:column;gap:10px}
+.modal-opt{padding:14px;border-radius:var(--r);border:none;font-family:'Nunito',sans-serif;font-size:15px;font-weight:700;cursor:pointer;text-align:left;display:flex;align-items:center;gap:12px}
+.mo-t{background:var(--rose-light);color:var(--rose)}
+.mo-a{background:var(--lav-light);color:var(--lav)}
+.mo-cancel{background:var(--cream);color:var(--soft);text-align:center;justify-content:center}
+
+/* ── FIREBASE STATUS ── */
+.fb-status{font-size:11px;text-align:center;padding:4px 12px;margin:8px 12px 0;border-radius:var(--rb)}
+.fb-ok{background:#E0F7F6;color:#2BAF9E}
+.fb-err{background:#FFE8E8;color:#E74C3C}
+.fb-loading{background:var(--amber-light);color:#B8860B}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-title">💑 LOVE-GAME</div>
+  <div class="login-sub">Budujeme si vztah kreditek po kreditku ❤️</div>
+  <div class="login-cards">
+    <div class="login-card tyna" onclick="login('tyna')">
+      <div class="login-avatar av-t">T</div>
+      <div>
+        <div class="login-name" style="color:var(--rose)">Týna</div>
+        <div class="login-hint">Klikni pro přihlášení</div>
+      </div>
+    </div>
+    <div class="login-card antonin" onclick="login('antonin')">
+      <div class="login-avatar av-a">A</div>
+      <div>
+        <div class="login-name" style="color:var(--lav)">Antonín</div>
+        <div class="login-hint">Klikni pro přihlášení</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="main-app" class="app hidden">
+  <div class="header">
+    <div class="header-top">
+      <div class="header-title">💑 LOVE-GAME</div>
+      <button class="logout-btn" onclick="logout()">Odhlásit</button>
+    </div>
+    <div class="current-user-badge" id="current-badge"></div>
+  </div>
+
+  <div id="fb-status" class="fb-status fb-loading">⏳ Připojuji se k databázi…</div>
+
+  <div class="scores">
+    <div class="score-card sc-t">
+      <div class="sc-avatar av-t">T</div>
+      <div class="sc-name">Týna</div>
+      <div class="sc-credits">🪙<span id="tyna-cred">0</span></div>
+      <div id="tyna-you" class="sc-you hidden">← to jsem já</div>
+    </div>
+    <div class="score-card sc-a">
+      <div class="sc-avatar av-a">A</div>
+      <div class="sc-name">Antonín</div>
+      <div class="sc-credits">🪙<span id="antonin-cred">0</span></div>
+      <div id="antonin-you" class="sc-you hidden" style="background:var(--lav-light);color:var(--lav)">← to jsem já</div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('aktivity',this)">🎯 Aktivity</button>
+    <button class="tab" onclick="switchTab('hodnoceni',this)">⭐ Hodnocení</button>
+    <button class="tab" onclick="switchTab('vyzvy',this)">🏆 Výzvy</button>
+    <button class="tab" onclick="switchTab('odmeny',this)">🎁 Odměny</button>
+    <button class="tab" onclick="switchTab('historie',this)">📜 Historie</button>
+  </div>
+
+  <div class="content">
+
+    <!-- AKTIVITY -->
+    <div class="section active" id="tab-aktivity">
+      <div class="card">
+        <div class="card-title">✅ Pozitivní aktivity</div>
+        <div id="pos-list"></div>
+        <button class="add-btn" onclick="toggleF('f-pos')">＋ Přidat aktivitu</button>
+        <div class="form-box hidden" id="f-pos">
+          <div class="fi-row">
+            <input class="fi" id="fp-emoji" placeholder="😊" style="max-width:60px;text-align:center" maxlength="2">
+            <input class="fi" id="fp-name" placeholder="Název aktivity">
+          </div>
+          <input class="fi" id="fp-desc" placeholder="Popis (volitelný)">
+          <div class="fi-row">
+            <input class="fi" id="fp-cred" type="number" placeholder="Kredity" min="1">
+            <button class="btn-main" onclick="addAct('pos')">Přidat</button>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">🚫 Nežádoucí aktivity</div>
+        <div id="neg-list"></div>
+        <button class="add-btn" onclick="toggleF('f-neg')">＋ Přidat nežádoucí</button>
+        <div class="form-box hidden" id="f-neg">
+          <div class="fi-row">
+            <input class="fi" id="fn-emoji" placeholder="😤" style="max-width:60px;text-align:center" maxlength="2">
+            <input class="fi" id="fn-name" placeholder="Název aktivity">
+          </div>
+          <input class="fi" id="fn-desc" placeholder="Popis (volitelný)">
+          <div class="fi-row">
+            <input class="fi" id="fn-cred" type="number" placeholder="Postih kreditů" min="1">
+            <button class="btn-main" style="background:linear-gradient(135deg,#FF6B6B,#EE2244)" onclick="addAct('neg')">Přidat</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HODNOCENÍ -->
+    <div class="section" id="tab-hodnoceni">
+      <div class="card star-wrap">
+        <div class="card-title" style="justify-content:center">Ohodnoť dnešní den 🌟</div>
+        <div style="font-size:12px;color:var(--soft);text-align:center;margin-bottom:8px">Koho hodnotíš?</div>
+        <div class="player-pick">
+          <div class="ppill pp-t" id="ratee-t" onclick="setRatee('tyna')">Týnu</div>
+          <div class="ppill pp-a" id="ratee-a" onclick="setRatee('antonin')">Antonína</div>
+        </div>
+        <div class="stars" id="stars-row">
+          <button class="star-b" onclick="setStar(1)">⭐</button>
+          <button class="star-b" onclick="setStar(2)">⭐</button>
+          <button class="star-b" onclick="setStar(3)">⭐</button>
+          <button class="star-b" onclick="setStar(4)">⭐</button>
+          <button class="star-b" onclick="setStar(5)">⭐</button>
+        </div>
+        <div class="rating-lbl" id="rat-lbl">– –</div>
+        <button class="btn-main w100" style="margin-top:14px" onclick="submitRating()">Odeslat hodnocení (+100 kreditů)</button>
+      </div>
+      <div class="card">
+        <div class="card-title">📊 Průměrná hodnocení</div>
+        <div class="stat-row">
+          <span style="font-size:14px;font-weight:700">Týna</span>
+          <span style="font-size:14px;color:var(--amber)" id="tyna-avg">–</span>
+        </div>
+        <div class="stat-row">
+          <span style="font-size:14px;font-weight:700">Antonín</span>
+          <span style="font-size:14px;color:var(--amber)" id="antonin-avg">–</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- VÝZVY -->
+    <div class="section" id="tab-vyzvy">
+      <div class="card">
+        <div class="card-title">🏆 Aktivní výzvy</div>
+        <div id="ch-list"><div class="empty">Zatím žádné výzvy</div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">➕ Nová výzva</div>
+        <input class="fi" id="ch-name" placeholder="Název výzvy">
+        <textarea class="fi" id="ch-desc" placeholder="Popis (nepovinný)" rows="2" style="resize:none"></textarea>
+        <div class="fi-row">
+          <input class="fi" id="ch-days" type="number" placeholder="Počet dní" min="1">
+          <input class="fi" id="ch-cred" type="number" placeholder="Odměna kreditů" min="1">
+        </div>
+        <select class="fi" id="ch-for">
+          <option value="tyna">Pro Týnu</option>
+          <option value="antonin">Pro Antonína</option>
+          <option value="both">Pro oba</option>
+        </select>
+        <button class="btn-main w100" onclick="addChallenge()">Vytvořit výzvu 🏆</button>
+      </div>
+    </div>
+
+    <!-- ODMĚNY -->
+    <div class="section" id="tab-odmeny">
+      <div class="card">
+        <div class="card-title">🛍️ Obchod s odměnami</div>
+        <div id="shop-list"></div>
+        <button class="add-btn" onclick="toggleF('f-shop')">＋ Přidat odměnu</button>
+        <div class="form-box hidden" id="f-shop">
+          <div class="fi-row">
+            <input class="fi" id="sh-emoji" placeholder="🎁" style="max-width:60px;text-align:center" maxlength="2">
+            <input class="fi" id="sh-name" placeholder="Název odměny">
+          </div>
+          <div class="fi-row">
+            <input class="fi" id="sh-price" type="number" placeholder="Cena v kreditech" min="1">
+            <select class="fi" id="sh-for">
+              <option value="tyna">Týnina</option>
+              <option value="antonin">Antonínova</option>
+            </select>
+          </div>
+          <button class="btn-main w100" onclick="addShopItem()">Přidat odměnu</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- HISTORIE -->
+    <div class="section" id="tab-historie">
+      <div class="card">
+        <div class="card-title">📜 Poslední události</div>
+        <div id="hist-list"><div class="empty">Zatím žádná aktivita</div></div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+
+  <nav class="bot-nav">
+    <button class="nav-it active" onclick="switchTab('aktivity',null);navActive(this)">
+      <span class="nav-ico">🎯</span><span class="nav-lbl">Aktivity</span>
+    </button>
+    <button class="nav-it" onclick="switchTab('hodnoceni',null);navActive(this)">
+      <span class="nav-ico">⭐</span><span class="nav-lbl">Hodnocení</span>
+    </button>
+    <button class="nav-it" onclick="switchTab('vyzvy',null);navActive(this)">
+      <span class="nav-ico">🏆</span><span class="nav-lbl">Výzvy</span>
+    </button>
+    <button class="nav-it" onclick="switchTab('odmeny',null);navActive(this)">
+      <span class="nav-ico">🎁</span><span class="nav-lbl">Odměny</span>
+    </button>
+    <button class="nav-it" onclick="switchTab('historie',null);navActive(this)">
+      <span class="nav-ico">📜</span><span class="nav-lbl">Historie</span>
+    </button>
+  </nav>
+</div>
+
+<!-- PLAYER SELECT MODAL -->
+<div class="modal-bg hidden" id="modal">
+  <div class="modal">
+    <div class="modal-title" id="modal-title">Kdo to udělal?</div>
+    <div class="modal-opts" id="modal-opts"></div>
+  </div>
+</div>
+
+<div class="flash" id="flash"></div>
+
+<!-- Firebase -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, set, get, push, onValue, update, remove }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+// ╔══════════════════════════════════════════════════════════╗
+// ║  🔧  VLOŽTE SEM VAŠI FIREBASE KONFIGURACI               ║
+// ║  (viz instrukce v README níže)                           ║
+// ╚══════════════════════════════════════════════════════════╝
+const firebaseConfig = {
+  apiKey: "AIzaSyBpaL51LfrFqzs0uMrefs94C1mpWuRRdTo",
+  authDomain: "lovegame-3c67a.firebaseapp.com",
+  databaseURL: "https://lovegame-3c67a-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "lovegame-3c67a",
+  storageBucket: "lovegame-3c67a.firebasestorage.app",
+  messagingSenderId: "991616952815",
+  appId: "1:991616952815:web:a32043126b34c721fdee1a",
+  measurementId: "G-7DNFPX28SS"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+// ── STATE ──
+let currentUser = null;
+let currentRatee = null;
+let currentStars = 0;
+let pendingAction = null;
+
+const NAMES = { tyna: 'Týna', antonin: 'Antonín' };
+
+// ── FIREBASE STATUS ──
+const fbStatus = document.getElementById('fb-status');
+
+function setStatus(ok, msg) {
+  fbStatus.className = 'fb-status ' + (ok === true ? 'fb-ok' : ok === false ? 'fb-err' : 'fb-loading');
+  fbStatus.textContent = msg;
+}
+
+// ── LOGIN / LOGOUT ──
+window.login = function(user) {
+  currentUser = user;
+  sessionStorage.setItem('nasehra_user', user);
+  document.getElementById('login-screen').classList.add('hidden');
+  document.getElementById('main-app').classList.remove('hidden');
+  document.getElementById('current-badge').textContent = '👋 Přihlášen/a jako: ' + NAMES[user];
+  document.getElementById(user === 'tyna' ? 'tyna-you' : 'antonin-you').classList.remove('hidden');
+  initFirebase();
+};
+
+window.logout = function() {
+  currentUser = null;
+  sessionStorage.removeItem('nasehra_user');
+  document.getElementById('main-app').classList.add('hidden');
+  document.getElementById('login-screen').classList.remove('hidden');
+  document.getElementById('tyna-you').classList.add('hidden');
+  document.getElementById('antonin-you').classList.add('hidden');
+};
+
+// Auto-login from session
+const saved = sessionStorage.getItem('nasehra_user');
+if (saved) login(saved);
+
+// ── FIREBASE INIT ──
+function initFirebase() {
+  setStatus(null, '⏳ Připojuji se…');
+  try {
+    // Listen to all data
+    onValue(ref(db, '/'), snap => {
+      const data = snap.val() || {};
+      renderAll(data);
+      setStatus(true, '✅ Připojeno – data se synchronizují v reálném čase');
+    }, err => {
+      setStatus(false, '❌ Chyba připojení: ' + err.message);
+    });
+    // Init defaults if empty
+    get(ref(db, '/')).then(snap => {
+      if (!snap.val()) {
+        set(ref(db, '/'), {
+          credits: { tyna: 0, antonin: 0 },
+          activities: {
+            pos: {
+              a1: { emoji:'☕', name:'Max 3 kávy za den', desc:'90 kreditů za střídmost', credits:90 },
+              a2: { emoji:'🏃', name:'Ranní pohyb', desc:'Pohyb dělá dobře', credits:120 },
+              a3: { emoji:'💬', name:'Otevřený rozhovor', desc:'Komunikace je základ', credits:80 },
+            },
+            neg: {
+              n1: { emoji:'🚬', name:'Kouření', desc:'Postih za cigaretu', credits:300 },
+              n2: { emoji:'😡', name:'Zbytečná hádka', desc:'Postih za konflikt', credits:150 },
+            }
+          },
+          shop: {
+            s1: { emoji:'💆', name:'Krátká masáž zad', price:180, forPlayer:'tyna' },
+            s2: { emoji:'🎬', name:'Výběr večerního filmu', price:100, forPlayer:'antonin' },
+            s3: { emoji:'🍕', name:'Oblíbená pizza', price:250, forPlayer:'tyna' },
+          },
+          challenges: {},
+          ratings: { tyna: [], antonin: [] },
+          history: {}
+        });
+      }
+    });
+  } catch(e) {
+    setStatus(false, '❌ Firebase není nakonfigurováno – přečtěte si instrukce v souboru');
+    renderOffline();
+  }
+}
+
+// ── RENDER ALL ──
+function renderAll(data) {
+  const credits = data.credits || { tyna:0, antonin:0 };
+  document.getElementById('tyna-cred').textContent = credits.tyna || 0;
+  document.getElementById('antonin-cred').textContent = credits.antonin || 0;
+  renderActs(data.activities || {});
+  renderChallenges(data.challenges || {});
+  renderShop(data.shop || {});
+  renderHistory(data.history || {});
+  renderRatings(data.ratings || {});
+}
+
+// ── ACTIVITIES ──
+function renderActs(acts) {
+  const pos = acts.pos || {};
+  const neg = acts.neg || {};
+  const pl = document.getElementById('pos-list');
+  const nl = document.getElementById('neg-list');
+  pl.innerHTML = Object.entries(pos).map(([k,a]) => `
+    <div class="act-item">
+      <div class="act-left">
+        <div class="act-icon ico-pos">${a.emoji||'✅'}</div>
+        <div>
+          <div class="act-name">${esc(a.name)}</div>
+          ${a.desc ? `<div class="act-desc">${esc(a.desc)}</div>` : ''}
+        </div>
+      </div>
+      <div class="act-right">
+        <button class="badge b-earn" onclick="pickPlayerAct('${k}','pos',${a.credits})">+${a.credits}</button>
+        <button class="badge b-del" onclick="delAct('${k}','pos')">×</button>
+      </div>
+    </div>`).join('') || '<div class="empty">Žádné aktivity</div>';
+
+  nl.innerHTML = Object.entries(neg).map(([k,a]) => `
+    <div class="act-item">
+      <div class="act-left">
+        <div class="act-icon ico-neg">${a.emoji||'🚫'}</div>
+        <div>
+          <div class="act-name">${esc(a.name)}</div>
+          ${a.desc ? `<div class="act-desc">${esc(a.desc)}</div>` : ''}
+        </div>
+      </div>
+      <div class="act-right">
+        <button class="badge b-pen" onclick="pickPlayerAct('${k}','neg',${a.credits})">-${a.credits}</button>
+        <button class="badge b-del" onclick="delAct('${k}','neg')">×</button>
+      </div>
+    </div>`).join('') || '<div class="empty">Žádné nežádoucí aktivity</div>';
+}
+
+window.addAct = function(type) {
+  const p = type === 'pos' ? 'fp' : 'fn';
+  const emoji = document.getElementById(p+'-emoji').value.trim() || (type==='pos'?'✅':'🚫');
+  const name = document.getElementById(p+'-name').value.trim();
+  const desc = document.getElementById(p+'-desc').value.trim();
+  const credits = parseInt(document.getElementById(p+'-cred').value);
+  if (!name || !credits) { alert('Vyplňte název a počet kreditů'); return; }
+  push(ref(db, '/activities/'+type), { emoji, name, desc, credits });
+  document.getElementById(p+'-emoji').value='';
+  document.getElementById(p+'-name').value='';
+  document.getElementById(p+'-desc').value='';
+  document.getElementById(p+'-cred').value='';
+  toggleF('f-'+type);
+};
+
+window.delAct = function(key, type) {
+  if (!confirm('Smazat tuto aktivitu?')) return;
+  remove(ref(db, '/activities/'+type+'/'+key));
+};
+
+// ── PICK PLAYER MODAL ──
+window.pickPlayerAct = function(key, type, credits) {
+  const actRef = ref(db, '/activities/'+type+'/'+key);
+  get(actRef).then(snap => {
+    const act = snap.val();
+    if (!act) return;
+    const isNeg = type === 'neg';
+    showModal(
+      isNeg ? `Kdo udělal: ${act.name}?` : `Kdo splnil: ${act.name}?`,
+      [
+        { label: 'Týna', cls: 'mo-t', cb: () => applyCredits('tyna', isNeg ? -credits : credits, (isNeg?'🚫':'✅')+' '+act.name) },
+        { label: 'Antonín', cls: 'mo-a', cb: () => applyCredits('antonin', isNeg ? -credits : credits, (isNeg?'🚫':'✅')+' '+act.name) },
+      ]
+    );
+  });
+};
+
+// ── MODAL ──
+function showModal(title, opts) {
+  const modal = document.getElementById('modal');
+  document.getElementById('modal-title').textContent = title;
+  const o = document.getElementById('modal-opts');
+  o.innerHTML = '';
+  opts.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'modal-opt ' + opt.cls;
+    btn.textContent = opt.label;
+    btn.onclick = () => { closeModal(); opt.cb(); };
+    o.appendChild(btn);
+  });
+  const cancel = document.createElement('button');
+  cancel.className = 'modal-opt mo-cancel';
+  cancel.textContent = 'Zrušit';
+  cancel.onclick = closeModal;
+  o.appendChild(cancel);
+  modal.classList.remove('hidden');
+}
+function closeModal() { document.getElementById('modal').classList.add('hidden'); }
+document.getElementById('modal').addEventListener('click', e => { if (e.target === document.getElementById('modal')) closeModal(); });
+
+// ── CREDITS ──
+function applyCredits(player, amount, reason) {
+  get(ref(db, '/credits/'+player)).then(snap => {
+    const cur = snap.val() || 0;
+    const updates = {};
+    updates['/credits/'+player] = cur + amount;
+    const histKey = Date.now().toString();
+    updates['/history/'+histKey] = {
+      player, amount, reason,
+      time: new Date().toLocaleString('cs-CZ', {day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})
+    };
+    update(ref(db), updates);
+    showBurst(amount > 0);
+    showFlash(amount);
+  });
+}
+
+// ── CHALLENGES ──
+function renderChallenges(chs) {
+  const cl = document.getElementById('ch-list');
+  const entries = Object.entries(chs);
+  if (!entries.length) { cl.innerHTML = '<div class="empty">Zatím žádné výzvy</div>'; return; }
+  const forLbl = { tyna:'pro Týnu', antonin:'pro Antonína', both:'pro oba' };
+  cl.innerHTML = entries.map(([k,ch]) => {
+    const pct = Math.round(((ch.completed||0) / ch.days) * 100);
+    return `
+    <div class="ch-item">
+      <div class="ch-top">
+        <div>
+          <div class="ch-name">${esc(ch.name)}</div>
+          <div class="ch-for">${forLbl[ch.forPlayer]||''} ${ch.desc?'· '+esc(ch.desc):''}</div>
+        </div>
+        <button class="badge b-del" onclick="delChallenge('${k}')">×</button>
+      </div>
+      <div class="ch-meta">
+        <span class="ch-tag ct-days">📅 ${ch.completed||0}/${ch.days} dní</span>
+        <span class="ch-tag ct-cred">🪙 ${ch.credits}</span>
+        <button class="ch-done-btn" onclick="progressChallenge('${k}')">✓ Den splněn</button>
+      </div>
+      <div class="ch-bar"><div class="ch-fill" style="width:${pct}%"></div></div>
+    </div>`;
+  }).join('');
+}
+
+window.addChallenge = function() {
+  const name = document.getElementById('ch-name').value.trim();
+  const desc = document.getElementById('ch-desc').value.trim();
+  const days = parseInt(document.getElementById('ch-days').value);
+  const credits = parseInt(document.getElementById('ch-cred').value);
+  const forPlayer = document.getElementById('ch-for').value;
+  if (!name || !days || !credits) { alert('Vyplňte název, počet dní a odměnu'); return; }
+  push(ref(db, '/challenges'), { name, desc, days, credits, forPlayer, completed: 0 });
+  document.getElementById('ch-name').value='';
+  document.getElementById('ch-desc').value='';
+  document.getElementById('ch-days').value='';
+  document.getElementById('ch-cred').value='';
+};
+
+window.progressChallenge = function(key) {
+  get(ref(db, '/challenges/'+key)).then(snap => {
+    const ch = snap.val();
+    if (!ch) return;
+    const done = (ch.completed||0) + 1;
+    if (done >= ch.days) {
+      const players = ch.forPlayer === 'both' ? ['tyna','antonin'] : [ch.forPlayer];
+      const updates = {};
+      players.forEach(p => {
+        get(ref(db, '/credits/'+p)).then(s => {
+          updates['/credits/'+p] = (s.val()||0) + ch.credits;
+          const k2 = Date.now().toString() + p;
+          updates['/history/'+k2] = {
+            player: p, amount: ch.credits,
+            reason: '🏆 Výzva splněna: '+ch.name,
+            time: new Date().toLocaleString('cs-CZ',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})
+          };
+          update(ref(db), updates);
+          showBurst(true); showFlash(ch.credits);
+        });
+      });
+      remove(ref(db, '/challenges/'+key));
+    } else {
+      update(ref(db, '/challenges/'+key), { completed: done });
+    }
+  });
+};
+
+window.delChallenge = function(key) {
+  if (!confirm('Smazat výzvu?')) return;
+  remove(ref(db, '/challenges/'+key));
+};
+
+// ── RATINGS ──
+window.setRatee = function(p) {
+  currentRatee = p;
+  document.getElementById('ratee-t').classList.toggle('sel', p==='tyna');
+  document.getElementById('ratee-a').classList.toggle('sel', p==='antonin');
+};
+window.setStar = function(n) {
+  currentStars = n;
+  const lbls = ['','😐 Těžký den','🙂 Ušlo to','😊 Dobrý den','😁 Skvělý den','🌟 Perfektní den!'];
+  document.querySelectorAll('.star-b').forEach((s,i) => s.classList.toggle('on', i<n));
+  document.getElementById('rat-lbl').textContent = lbls[n];
+};
+window.submitRating = function() {
+  if (!currentRatee) { alert('Vyber koho hodnotíš'); return; }
+  if (!currentStars) { alert('Vyber počet hvězdiček'); return; }
+  const rater = currentUser;
+  const ratee = currentRatee;
+  const stars = currentStars;
+  get(ref(db, '/ratings/'+ratee)).then(snap => {
+    const arr = snap.val() || [];
+    arr.push(stars);
+    update(ref(db, '/ratings'), { [ratee]: arr });
+    applyCredits(rater, 100, `⭐ Hodnocení: ${NAMES[ratee]} dostalo ${stars}★`);
+  });
+  currentStars = 0;
+  currentRatee = null;
+  document.querySelectorAll('.star-b').forEach(s => s.classList.remove('on'));
+  document.getElementById('rat-lbl').textContent = '– –';
+  document.getElementById('ratee-t').classList.remove('sel');
+  document.getElementById('ratee-a').classList.remove('sel');
+};
+
+function renderRatings(ratings) {
+  const avg = arr => arr && arr.length ? (arr.reduce((a,b)=>a+b,0)/arr.length).toFixed(1)+' ⭐' : '–';
+  document.getElementById('tyna-avg').textContent = avg(ratings.tyna);
+  document.getElementById('antonin-avg').textContent = avg(ratings.antonin);
+}
+
+// ── SHOP ──
+function renderShop(shop) {
+  const sl = document.getElementById('shop-list');
+  const entries = Object.entries(shop);
+  if (!entries.length) { sl.innerHTML = '<div class="empty">Žádné odměny</div>'; return; }
+  sl.innerHTML = entries.map(([k,item]) => `
+    <div class="shop-item">
+      <div class="sh-left">
+        <span class="sh-ico">${item.emoji||'🎁'}</span>
+        <div>
+          <div class="sh-name">${esc(item.name)}</div>
+          <div class="sh-price">🪙 ${item.price} · ${item.forPlayer==='tyna'?'Týnina':'Antonínova'}</div>
+        </div>
+      </div>
+      <div class="sh-right">
+        <button class="btn-buy" onclick="buyItem('${k}')">Vyměnit</button>
+        <button class="badge b-del" onclick="delShopItem('${k}')">×</button>
+      </div>
+    </div>`).join('');
+}
+
+window.addShopItem = function() {
+  const emoji = document.getElementById('sh-emoji').value.trim() || '🎁';
+  const name = document.getElementById('sh-name').value.trim();
+  const price = parseInt(document.getElementById('sh-price').value);
+  const forPlayer = document.getElementById('sh-for').value;
+  if (!name || !price) { alert('Vyplňte název a cenu'); return; }
+  push(ref(db, '/shop'), { emoji, name, price, forPlayer });
+  document.getElementById('sh-emoji').value='';
+  document.getElementById('sh-name').value='';
+  document.getElementById('sh-price').value='';
+  toggleF('f-shop');
+};
+
+window.buyItem = function(key) {
+  get(ref(db, '/shop/'+key)).then(snap => {
+    const item = snap.val();
+    if (!item) return;
+    get(ref(db, '/credits/'+item.forPlayer)).then(cs => {
+      const cur = cs.val() || 0;
+      if (cur < item.price) {
+        alert(`Nestačí kreditů! ${NAMES[item.forPlayer]} má ${cur}, potřebuje ${item.price}.`);
+        return;
+      }
+      if (!confirm(`Vyměnit ${item.emoji} ${item.name} za ${item.price} kreditů?`)) return;
+      applyCredits(item.forPlayer, -item.price, `🛍️ Odměna: ${item.name}`);
+    });
+  });
+};
+
+window.delShopItem = function(key) {
+  if (!confirm('Smazat odměnu?')) return;
+  remove(ref(db, '/shop/'+key));
+};
+
+// ── HISTORY ──
+function renderHistory(hist) {
+  const hl = document.getElementById('hist-list');
+  const entries = Object.entries(hist).sort((a,b)=>b[0]-a[0]).slice(0,40);
+  if (!entries.length) { hl.innerHTML = '<div class="empty">Zatím žádná aktivita</div>'; return; }
+  hl.innerHTML = entries.map(([,h]) => `
+    <div class="hist-item">
+      <div>
+        <span class="hist-who ${h.player==='tyna'?'hw-t':'hw-a'}">${NAMES[h.player]||h.player}</span>
+        <div class="hist-desc">${esc(h.reason)}</div>
+        <div class="hist-time">${h.time}</div>
+      </div>
+      <div class="hist-amt ${h.amount>0?'ha-pos':'ha-neg'}">${h.amount>0?'+':''}${h.amount}</div>
+    </div>`).join('');
+}
+
+// ── ANIMATIONS ──
+function showBurst(pos) {
+  const b = document.createElement('div');
+  b.className = 'burst';
+  (pos?['🪙','🌟','✨','💛','🪙','⭐']:['💸','😮','💨']).forEach((c,i) => {
+    const coin = document.createElement('div');
+    coin.className = 'coin';
+    coin.textContent = c;
+    const a = Math.random()*2*Math.PI, d = 80+Math.random()*120;
+    coin.style.cssText = `--dx:${Math.cos(a)*d}px;--dy:${Math.sin(a)*d-80}px;left:${35+Math.random()*30}%;top:${25+Math.random()*30}%;animation-delay:${i*.07}s`;
+    b.appendChild(coin);
+  });
+  document.body.appendChild(b);
+  setTimeout(()=>b.remove(),1400);
+}
+function showFlash(amt) {
+  const el = document.getElementById('flash');
+  el.textContent = (amt>0?'+':'')+amt+' 🪙';
+  el.className='flash show';
+  setTimeout(()=>{el.classList.add('hide');el.classList.remove('show');},1100);
+  setTimeout(()=>el.classList.remove('hide'),1500);
+}
+
+// ── OFFLINE FALLBACK ──
+function renderOffline() {
+  setStatus(false, '⚠️ Běžím offline – data se neukládají. Nastavte Firebase.');
+}
+
+// ── HELPERS ──
+window.switchTab = function(name, tabEl) {
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  if (tabEl) {
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    tabEl.classList.add('active');
+  }
+};
+window.navActive = function(el) {
+  document.querySelectorAll('.nav-it').forEach(n=>n.classList.remove('active'));
+  el.classList.add('active');
+};
+window.toggleF = function(id) {
+  document.getElementById(id).classList.toggle('hidden');
+};
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+</script>
+
+<!--
+╔══════════════════════════════════════════════════════════════════════╗
+║                    📋 INSTRUKCE K NASTAVENÍ                         ║
+╠══════════════════════════════════════════════════════════════════════╣
+║                                                                      ║
+║  1. FIREBASE (databáze) – ZDARMA                                     ║
+║     a) Jdi na https://console.firebase.google.com                    ║
+║     b) Klikni "Create a project", pojmenuj ho (např. "nase-hra")     ║
+║     c) Google Analytics: není potřeba → Continue                     ║
+║     d) Vlevo klikni "Build" → "Realtime Database"                    ║
+║     e) "Create Database" → vyber "Europe (europe-west1)" → Next      ║
+║     f) Vyber "Start in test mode" → Enable                           ║
+║     g) Vlevo klikni ozubené kolečko (⚙️) → "Project settings"       ║
+║     h) Scrolluj dolů → "Your apps" → klikni ikonu </> (Web)         ║
+║     i) Zaregistruj app (název cokoliv) → zobrazí se firebaseConfig   ║
+║     j) Zkopíruj hodnoty do části firebaseConfig výše v kódu          ║
+║                                                                      ║
+║  2. GITHUB PAGES – ZDARMA hosting                                    ║
+║     a) Jdi na https://github.com → přihlas se                        ║
+║     b) "New repository" → pojmenuj "nase-hra" → Create               ║
+║     c) Nahraj tento soubor (index.html) do repozitáře                ║
+║        (tlačítko "uploading an existing file")                        ║
+║     d) Settings → Pages → Source: "main" branch → Save              ║
+║     e) Za chvíli dostaneš URL:                                       ║
+║        https://TVOJE_JMENO.github.io/nase-hra                        ║
+║                                                                      ║
+║  3. PŘIDAT NA PLOCHU TELEFONU                                        ║
+║     iPhone: Safari → sdílet (□↑) → "Přidat na plochu"               ║
+║     Android: Chrome → menu (⋮) → "Přidat na plochu"                 ║
+║                                                                      ║
+║  ⚠️  DŮLEŽITÉ: Soubor musí mít název "index.html"                   ║
+╚══════════════════════════════════════════════════════════════════════╝
+-->
+</body>
+</html>
