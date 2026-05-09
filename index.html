@@ -190,7 +190,23 @@ select.fi{background:white}
 .mo-a{background:var(--lav-light);color:var(--lav)}
 .mo-cancel{background:var(--cream);color:var(--soft);text-align:center;justify-content:center}
 
-/* ── FIREBASE STATUS ── */
+/* ── CHECKLIST ── */
+.cl-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.cl-item:last-of-type{border-bottom:none}
+.cl-check{width:26px;height:26px;border-radius:8px;border:2.5px solid var(--border);background:white;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;transition:all .2s}
+.cl-check.done{background:linear-gradient(135deg,#4ECDC4,#44A08D);border-color:transparent}
+.cl-body{flex:1;min-width:0}
+.cl-name{font-size:14px;font-weight:700;transition:all .2s}
+.cl-name.done{text-decoration:line-through;color:var(--soft)}
+.cl-meta{font-size:11px;color:var(--soft);margin-top:1px}
+.cl-right{display:flex;gap:5px;align-items:center;flex-shrink:0}
+.cl-cred-badge{font-size:12px;font-weight:700;color:var(--amber);background:var(--amber-light);padding:3px 8px;border-radius:var(--rb)}
+.cl-del{background:#F5F5F5;color:#999;width:26px;height:26px;border-radius:8px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px}
+.cl-for-t{background:var(--rose-light);color:var(--rose)}
+.cl-for-a{background:var(--lav-light);color:var(--lav)}
+.cl-for-b{background:var(--mint-light);color:var(--mint)}
+
+/* ── CHECKLIST ── */
 .fb-status{font-size:11px;text-align:center;padding:4px 12px;margin:8px 12px 0;border-radius:var(--rb)}
 .fb-ok{background:#E0F7F6;color:#2BAF9E}
 .fb-err{background:#FFE8E8;color:#E74C3C}
@@ -250,6 +266,7 @@ select.fi{background:white}
 
   <div class="tabs">
     <button class="tab active" onclick="switchTab('aktivity',this)">🎯 Aktivity</button>
+    <button class="tab" onclick="switchTab('checklist',this)">✅ Denní</button>
     <button class="tab" onclick="switchTab('hodnoceni',this)">⭐ Hodnocení</button>
     <button class="tab" onclick="switchTab('vyzvy',this)">🏆 Výzvy</button>
     <button class="tab" onclick="switchTab('odmeny',this)">🎁 Odměny</button>
@@ -311,8 +328,28 @@ select.fi{background:white}
           <button class="star-b" onclick="setStar(5)">⭐</button>
         </div>
         <div class="rating-lbl" id="rat-lbl">– –</div>
+        <div style="margin-top:16px;display:flex;flex-direction:column;gap:10px">
+          <div>
+            <div style="font-size:12px;font-weight:700;color:var(--soft);margin-bottom:5px">✨ Co se dnes povedlo?</div>
+            <textarea class="fi" id="rat-good" placeholder="Napiš co bylo dnes super…" rows="2" style="resize:none;margin:0"></textarea>
+          </div>
+          <div>
+            <div style="font-size:12px;font-weight:700;color:var(--soft);margin-bottom:5px">💭 Co šlo udělat lépe?</div>
+            <textarea class="fi" id="rat-better" placeholder="Co bys příště udělal/a jinak…" rows="2" style="resize:none;margin:0"></textarea>
+          </div>
+          <div>
+            <div style="font-size:12px;font-weight:700;color:var(--soft);margin-bottom:5px">📝 Poznámka</div>
+            <textarea class="fi" id="rat-note" placeholder="Cokoliv dalšího…" rows="2" style="resize:none;margin:0"></textarea>
+          </div>
+        </div>
         <button class="btn-main w100" style="margin-top:14px" onclick="submitRating()">Odeslat hodnocení (+100 kreditů)</button>
       </div>
+
+      <div class="card" id="journal-card">
+        <div class="card-title">📖 Deník hodnocení</div>
+        <div id="journal-list"><div class="empty">Zatím žádné záznamy</div></div>
+      </div>
+
       <div class="card">
         <div class="card-title">📊 Průměrná hodnocení</div>
         <div class="stat-row">
@@ -372,6 +409,42 @@ select.fi{background:white}
       </div>
     </div>
 
+    <!-- DENNÍ CHECKLIST -->
+    <div class="section" id="tab-checklist">
+      <div class="card">
+        <div class="card-title">✅ Dnešní úkoly
+          <span id="cl-date" style="margin-left:auto;font-size:11px;color:var(--soft);font-weight:600;text-transform:none"></span>
+        </div>
+        <div style="font-size:12px;color:var(--soft);margin-bottom:10px">Obnova každý den v 1:00 · splněné úkoly se resetují, seznam zůstává</div>
+        <div id="cl-progress-wrap" style="margin-bottom:12px">
+          <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:700;margin-bottom:5px">
+            <span id="cl-prog-label">0 / 0 splněno</span>
+            <span id="cl-prog-cred" style="color:var(--amber)">0 🪙 dnes</span>
+          </div>
+          <div style="height:8px;background:var(--border);border-radius:var(--rb);overflow:hidden">
+            <div id="cl-prog-bar" style="height:100%;background:linear-gradient(90deg,#FF6B9D,#FFB347);border-radius:var(--rb);transition:width .4s;width:0%"></div>
+          </div>
+        </div>
+        <div id="cl-list"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">➕ Přidat denní úkol</div>
+        <div class="fi-row">
+          <input class="fi" id="cl-emoji" placeholder="🐕" style="max-width:60px;text-align:center" maxlength="2">
+          <input class="fi" id="cl-name" placeholder="Název úkolu (např. Venčení psa)">
+        </div>
+        <div class="fi-row">
+          <input class="fi" id="cl-cred" type="number" placeholder="Kredity za splnění" min="1">
+          <select class="fi" id="cl-for">
+            <option value="tyna">Pro Týnu</option>
+            <option value="antonin">Pro Antonína</option>
+            <option value="both">Pro oba</option>
+          </select>
+        </div>
+        <button class="btn-main w100" onclick="addChecklistItem()">Přidat úkol</button>
+      </div>
+    </div>
+
     <!-- HISTORIE -->
     <div class="section" id="tab-historie">
       <div class="card">
@@ -385,6 +458,9 @@ select.fi{background:white}
   <nav class="bot-nav">
     <button class="nav-it active" onclick="switchTab('aktivity',null);navActive(this)">
       <span class="nav-ico">🎯</span><span class="nav-lbl">Aktivity</span>
+    </button>
+    <button class="nav-it" onclick="switchTab('checklist',null);navActive(this)">
+      <span class="nav-ico">✅</span><span class="nav-lbl">Denní</span>
     </button>
     <button class="nav-it" onclick="switchTab('hodnoceni',null);navActive(this)">
       <span class="nav-ico">⭐</span><span class="nav-lbl">Hodnocení</span>
@@ -487,6 +563,9 @@ function initFirebase() {
     }, err => {
       setStatus(false, '❌ Chyba připojení: ' + err.message);
     });
+    checkDailyReset();
+    // Schedule next reset check every minute
+    setInterval(checkDailyReset, 60000);
     // Init defaults if empty
     get(ref(db, '/')).then(snap => {
       if (!snap.val()) {
@@ -530,6 +609,8 @@ function renderAll(data) {
   renderShop(data.shop || {});
   renderHistory(data.history || {});
   renderRatings(data.ratings || {});
+  renderJournal(data.journal);
+  renderChecklist(data);
 }
 
 // ── ACTIVITIES ──
@@ -738,10 +819,21 @@ window.submitRating = function() {
   const rater = currentUser;
   const ratee = currentRatee;
   const stars = currentStars;
+  const good = document.getElementById('rat-good').value.trim();
+  const better = document.getElementById('rat-better').value.trim();
+  const note = document.getElementById('rat-note').value.trim();
+  const entry = {
+    rater, ratee, stars,
+    good: good || null,
+    better: better || null,
+    note: note || null,
+    time: new Date().toLocaleString('cs-CZ', {day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})
+  };
   get(ref(db, '/ratings/'+ratee)).then(snap => {
     const arr = snap.val() || [];
     arr.push(stars);
     update(ref(db, '/ratings'), { [ratee]: arr });
+    push(ref(db, '/journal'), entry);
     applyCredits(rater, 100, `⭐ Hodnocení: ${NAMES[ratee]} dostalo ${stars}★`);
   });
   currentStars = 0;
@@ -750,12 +842,37 @@ window.submitRating = function() {
   document.getElementById('rat-lbl').textContent = '– –';
   document.getElementById('ratee-t').classList.remove('sel');
   document.getElementById('ratee-a').classList.remove('sel');
+  document.getElementById('rat-good').value = '';
+  document.getElementById('rat-better').value = '';
+  document.getElementById('rat-note').value = '';
 };
 
 function renderRatings(ratings) {
   const avg = arr => arr && arr.length ? (arr.reduce((a,b)=>a+b,0)/arr.length).toFixed(1)+' ⭐' : '–';
   document.getElementById('tyna-avg').textContent = avg(ratings.tyna);
   document.getElementById('antonin-avg').textContent = avg(ratings.antonin);
+}
+
+function renderJournal(journal) {
+  const jl = document.getElementById('journal-list');
+  if (!jl) return;
+  const entries = Object.entries(journal||{}).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,20);
+  if (!entries.length) { jl.innerHTML = '<div class="empty">Zatím žádné záznomy</div>'; return; }
+  const stars = n => '⭐'.repeat(n) + '☆'.repeat(5-n);
+  jl.innerHTML = entries.map(([,e]) => `
+    <div style="padding:12px 0;border-bottom:1px solid var(--border)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <div style="display:flex;gap:6px;align-items:center">
+          <span class="hist-who ${e.ratee==='tyna'?'hw-t':'hw-a'}">${NAMES[e.ratee]||e.ratee}</span>
+          <span style="font-size:14px">${stars(e.stars)}</span>
+        </div>
+        <span style="font-size:10px;color:var(--soft)">${e.time}</span>
+      </div>
+      <div style="font-size:11px;color:var(--soft);margin-bottom:4px">od ${NAMES[e.rater]||e.rater}</div>
+      ${e.good ? `<div style="background:var(--mint-light);border-radius:10px;padding:7px 10px;margin-bottom:5px"><div style="font-size:10px;font-weight:700;color:#2BAF9E;margin-bottom:2px">✨ Co se povedlo</div><div style="font-size:13px">${esc(e.good)}</div></div>` : ''}
+      ${e.better ? `<div style="background:var(--amber-light);border-radius:10px;padding:7px 10px;margin-bottom:5px"><div style="font-size:10px;font-weight:700;color:#B8860B;margin-bottom:2px">💭 Co šlo lépe</div><div style="font-size:13px">${esc(e.better)}</div></div>` : ''}
+      ${e.note ? `<div style="background:var(--lav-light);border-radius:10px;padding:7px 10px"><div style="font-size:10px;font-weight:700;color:var(--lav);margin-bottom:2px">📝 Poznámka</div><div style="font-size:13px">${esc(e.note)}</div></div>` : ''}
+    </div>`).join('');
 }
 
 // ── SHOP ──
@@ -855,6 +972,131 @@ function showFlash(amt) {
 // ── OFFLINE FALLBACK ──
 function renderOffline() {
   setStatus(false, '⚠️ Běžím offline – data se neukládají. Nastavte Firebase.');
+}
+
+// ── DAILY CHECKLIST ──
+function todayKey() {
+  const d = new Date();
+  // reset hour is 1:00 AM — if before 1am, use previous day's key
+  if (d.getHours() < 1) d.setDate(d.getDate() - 1);
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function renderChecklist(data) {
+  const items = data.checklist_items || {};
+  const todayChecks = (data.checklist_done || {})[todayKey()] || {};
+  const cl = document.getElementById('cl-list');
+  const entries = Object.entries(items);
+
+  // update date display
+  const now = new Date();
+  document.getElementById('cl-date').textContent =
+    now.toLocaleDateString('cs-CZ', {weekday:'short', day:'numeric', month:'numeric'});
+
+  if (!entries.length) {
+    cl.innerHTML = '<div class="empty">Zatím žádné denní úkoly — přidej první! 👇</div>';
+    document.getElementById('cl-prog-label').textContent = '0 / 0 splněno';
+    document.getElementById('cl-prog-cred').textContent = '0 🪙 dnes';
+    document.getElementById('cl-prog-bar').style.width = '0%';
+    return;
+  }
+
+  const forLbl = { tyna:'Týna', antonin:'Antonín', both:'Oba' };
+  const forCls = { tyna:'cl-for-t', antonin:'cl-for-a', both:'cl-for-b' };
+
+  let doneCount = 0, earnedToday = 0, totalCred = 0;
+  entries.forEach(([k,item]) => {
+    const isDone = !!todayChecks[k];
+    if (isDone) { doneCount++; earnedToday += (item.credits||0) * (item.forPlayer==='both'?2:1); }
+    totalCred += (item.credits||0);
+  });
+
+  const pct = entries.length ? Math.round(doneCount/entries.length*100) : 0;
+  document.getElementById('cl-prog-label').textContent = `${doneCount} / ${entries.length} splněno`;
+  document.getElementById('cl-prog-cred').textContent = `${earnedToday} 🪙 dnes`;
+  document.getElementById('cl-prog-bar').style.width = pct+'%';
+
+  cl.innerHTML = entries.map(([k,item]) => {
+    const isDone = !!todayChecks[k];
+    return `
+    <div class="cl-item">
+      <button class="cl-check ${isDone?'done':''}" onclick="toggleCheck('${k}','${item.forPlayer}',${item.credits},'${esc(item.name)}')">
+        ${isDone?'✓':''}
+      </button>
+      <div class="cl-body">
+        <div class="cl-name ${isDone?'done':''}">${item.emoji||'📌'} ${esc(item.name)}</div>
+        <div class="cl-meta">
+          <span class="cl-cred-badge">🪙 ${item.credits}</span>
+          <span class="cl-for-t ${forCls[item.forPlayer]}" style="padding:2px 7px;border-radius:50px;font-size:10px;font-weight:700;margin-left:4px">${forLbl[item.forPlayer]||''}</span>
+        </div>
+      </div>
+      <button class="cl-del" onclick="delChecklistItem('${k}')">×</button>
+    </div>`;
+  }).join('');
+}
+
+window.toggleCheck = function(key, forPlayer, credits, name) {
+  const dk = todayKey();
+  get(ref(db, `/checklist_done/${dk}/${key}`)).then(snap => {
+    if (snap.val()) {
+      // already done — uncheck, remove credits
+      remove(ref(db, `/checklist_done/${dk}/${key}`));
+      const players = forPlayer === 'both' ? ['tyna','antonin'] : [forPlayer];
+      players.forEach(p => {
+        get(ref(db, '/credits/'+p)).then(cs => {
+          const updates = {};
+          updates['/credits/'+p] = Math.max(0, (cs.val()||0) - credits);
+          const hk = Date.now().toString()+p;
+          updates['/history/'+hk] = { player:p, amount:-credits, reason:`↩️ Odškrtnuto: ${name}`, time: new Date().toLocaleString('cs-CZ',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}) };
+          update(ref(db), updates);
+        });
+      });
+    } else {
+      // mark done, add credits
+      set(ref(db, `/checklist_done/${dk}/${key}`), true);
+      const players = forPlayer === 'both' ? ['tyna','antonin'] : [forPlayer];
+      players.forEach(p => {
+        get(ref(db, '/credits/'+p)).then(cs => {
+          const updates = {};
+          updates['/credits/'+p] = (cs.val()||0) + credits;
+          const hk = Date.now().toString()+p;
+          updates['/history/'+hk] = { player:p, amount:credits, reason:`✅ Denní úkol: ${name}`, time: new Date().toLocaleString('cs-CZ',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}) };
+          update(ref(db), updates);
+          showBurst(true); showFlash(credits);
+        });
+      });
+    }
+  });
+};
+
+window.addChecklistItem = function() {
+  const emoji = document.getElementById('cl-emoji').value.trim() || '📌';
+  const name = document.getElementById('cl-name').value.trim();
+  const credits = parseInt(document.getElementById('cl-cred').value);
+  const forPlayer = document.getElementById('cl-for').value;
+  if (!name || !credits) { alert('Vyplňte název a počet kreditů'); return; }
+  push(ref(db, '/checklist_items'), { emoji, name, credits, forPlayer });
+  document.getElementById('cl-emoji').value='';
+  document.getElementById('cl-name').value='';
+  document.getElementById('cl-cred').value='';
+};
+
+window.delChecklistItem = function(key) {
+  if (!confirm('Smazat tento úkol? Příští den se už neobjeví.')) return;
+  remove(ref(db, '/checklist_items/'+key));
+};
+
+// Check for reset at 1:00 AM — compare stored lastResetDay with todayKey()
+function checkDailyReset() {
+  get(ref(db, '/checklist_last_reset')).then(snap => {
+    const last = snap.val();
+    const today = todayKey();
+    if (last !== today) {
+      set(ref(db, '/checklist_last_reset'), today);
+      // done entries for old days are simply ignored by todayKey()
+      // nothing to delete — old keys just become irrelevant
+    }
+  });
 }
 
 // ── HELPERS ──
